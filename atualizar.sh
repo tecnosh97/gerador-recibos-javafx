@@ -6,7 +6,7 @@ echo "--- INICIANDO ATUALIZAÇÃO DO PROJETO ---"
 git add .
 
 # Pergunta qual foi a alteração para colocar na mensagem do commit
-echo "nada apenas um test:"
+echo "nada apenas um testa:"
 read mensagem
 
 # Faz o commit com a mensagem digitada

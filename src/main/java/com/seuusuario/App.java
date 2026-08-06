@@ -27,11 +27,42 @@ public class App extends Application {
         grid.setVgap(10);
         grid.setHgap(10);
 
+        // 1. Caixa de Seleção: Cliente ou Empresa
+        ComboBox<String> cbTipoPessoa = new ComboBox<>();
+        cbTipoPessoa.getItems().addAll("Cliente (CPF)", "Empresa (CNPJ)");
+        cbTipoPessoa.setValue("Cliente (CPF)"); // Valor padrão inicial
+
         TextField txtNome = new TextField();
-        txtNome.setPromptText("Ex: JOÃO FERREIRA");
+        txtNome.setPromptText("Nome completo ou Razão Social");
 
         TextField txtDocumento = new TextField();
-        txtDocumento.setPromptText("Ex: 123.456.789-00");
+        txtDocumento.setPromptText("Digite apenas os números");
+
+        // Lógica para limitar os números do CPF (11) e CNPJ (14) e aceitar apenas números
+        txtDocumento.textProperty().addListener((observable, oldValue, newValue) -> {
+            // Remove tudo o que não for número
+            if (!newValue.matches("\\d*")) {
+                txtDocumento.setText(newValue.replaceAll("[^\\d]", ""));
+                return;
+            }
+
+            // Define o limite com base na seleção do ComboBox
+            int limite = cbTipoPessoa.getValue().equals("Cliente (CPF)") ? 11 : 14;
+
+            if (txtDocumento.getText().length() > limite) {
+                txtDocumento.setText(oldValue);
+            }
+        });
+
+        // Atualiza o texto de ajuda e limpa o campo ao trocar a opção
+        cbTipoPessoa.setOnAction(e -> {
+            txtDocumento.clear();
+            if (cbTipoPessoa.getValue().equals("Cliente (CPF)")) {
+                txtDocumento.setPromptText("Máximo 11 números");
+            } else {
+                txtDocumento.setPromptText("Máximo 14 números");
+            }
+        });
 
         TextField txtValor = new TextField();
         txtValor.setPromptText("Ex: 200,00");
@@ -54,36 +85,41 @@ public class App extends Application {
         TextField txtDocEmitente = new TextField();
         txtDocEmitente.setPromptText("Seu CPF ou CNPJ");
 
-        grid.add(new Label("Nome do Pagador:"), 0, 0);
-        grid.add(txtNome, 1, 0);
+        // Adicionando os elementos na tela em ordem
+        grid.add(new Label("Tipo de Pagador:"), 0, 0);
+        grid.add(cbTipoPessoa, 1, 0);
 
-        grid.add(new Label("CPF/CNPJ do Pagador:"), 0, 1);
-        grid.add(txtDocumento, 1, 1);
+        grid.add(new Label("Nome / Razão Social:"), 0, 1);
+        grid.add(txtNome, 1, 1);
 
-        grid.add(new Label("Valor (R$):"), 0, 2);
-        grid.add(txtValor, 1, 2);
+        grid.add(new Label("CPF / CNPJ:"), 0, 2);
+        grid.add(txtDocumento, 1, 2);
 
-        grid.add(new Label("Valor por Extenso:"), 0, 3);
-        grid.add(txtValorExtenso, 1, 3);
+        grid.add(new Label("Valor (R$):"), 0, 3);
+        grid.add(txtValor, 1, 3);
 
-        grid.add(new Label("Referente a:"), 0, 4);
-        grid.add(txtMotivo, 1, 4);
+        grid.add(new Label("Valor por Extenso:"), 0, 4);
+        grid.add(txtValorExtenso, 1, 4);
 
-        grid.add(new Label("Forma de Pagamento:"), 0, 5);
-        grid.add(txtFormaPagamento, 1, 5);
+        grid.add(new Label("Referente a:"), 0, 5);
+        grid.add(txtMotivo, 1, 5);
 
-        grid.add(new Label("Local e Data:"), 0, 6);
-        grid.add(txtLocalData, 1, 6);
+        grid.add(new Label("Forma de Pagamento:"), 0, 6);
+        grid.add(txtFormaPagamento, 1, 6);
 
-        grid.add(new Label("Seu Nome/Empresa:"), 0, 7);
-        grid.add(txtEmitente, 1, 7);
+        grid.add(new Label("Local e Data:"), 0, 7);
+        grid.add(txtLocalData, 1, 7);
 
-        grid.add(new Label("Seu CPF/CNPJ:"), 0, 8);
-        grid.add(txtDocEmitente, 1, 8);
+        grid.add(new Label("Seu Nome/Empresa:"), 0, 8);
+        grid.add(txtEmitente, 1, 8);
+
+        grid.add(new Label("Seu CPF/CNPJ:"), 0, 9);
+        grid.add(txtDocEmitente, 1, 9);
 
         Button btnGerar = new Button("Gerar Recibo em PDF");
-        grid.add(btnGerar, 1, 9);
+        grid.add(btnGerar, 1, 10);
 
+        // Ação do Botão
         btnGerar.setOnAction(e -> {
             String nome = txtNome.getText();
             String documento = txtDocumento.getText();
@@ -95,15 +131,15 @@ public class App extends Application {
             String emitente = txtEmitente.getText();
             String docEmitente = txtDocEmitente.getText();
 
-            if (nome.isEmpty() || valor.isEmpty()) {
-                showAlert("Erro", "Preencha pelo menos o Nome e o Valor!", Alert.AlertType.ERROR);
+            if (nome.isEmpty() || valor.isEmpty() || documento.isEmpty()) {
+                showAlert("Erro", "Preencha os campos obrigatórios (Nome, Documento e Valor)!", Alert.AlertType.ERROR);
                 return;
             }
 
             gerarPdfProfissional(nome, documento, valor, valorExtenso, motivo, formaPagamento, localData, emitente, docEmitente);
         });
 
-        Scene scene = new Scene(grid, 500, 550);
+        Scene scene = new Scene(grid, 520, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

@@ -1,10 +1,13 @@
 package com.seuusuario;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -12,56 +15,63 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class App extends Application {
 
+    // Defina a versão atual do app instalada
+    private final String VERSAO_ATUAL = "1.0.0"; 
+    private File arquivoLogo = null;
+
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Gerador de Recibos Profissional - JavaFX");
+        primaryStage.setTitle("Gerador de Recibos v" + VERSAO_ATUAL);
+
+        // Dispara a verificação de atualização no GitHub em segundo plano
+        verificarAtualizacaoNoGitHub();
 
         GridPane grid = new GridPane();
-        grid.setPadding(new Insets(20, 20, 20, 20));
-        grid.setVgap(10);
+        grid.setPadding(new Insets(15));
+        grid.setVgap(8);
         grid.setHgap(10);
+        grid.setAlignment(Pos.CENTER);
 
-        // 1. Caixa de Seleção: Cliente ou Empresa
+        // Componentes
         ComboBox<String> cbTipoPessoa = new ComboBox<>();
         cbTipoPessoa.getItems().addAll("Cliente (CPF)", "Empresa (CNPJ)");
-        cbTipoPessoa.setValue("Cliente (CPF)"); // Valor padrão inicial
+        cbTipoPessoa.setValue("Cliente (CPF)");
+        cbTipoPessoa.setMaxWidth(Double.MAX_VALUE);
 
         TextField txtNome = new TextField();
         txtNome.setPromptText("Nome completo ou Razão Social");
 
         TextField txtDocumento = new TextField();
-        txtDocumento.setPromptText("Digite apenas os números");
+        txtDocumento.setPromptText("Apenas números");
 
-        // Lógica para limitar os números do CPF (11) e CNPJ (14) e aceitar apenas números
+        // Limite de caracteres para CPF (11) e CNPJ (14)
         txtDocumento.textProperty().addListener((observable, oldValue, newValue) -> {
-            // Remove tudo o que não for número
             if (!newValue.matches("\\d*")) {
                 txtDocumento.setText(newValue.replaceAll("[^\\d]", ""));
                 return;
             }
-
-            // Define o limite com base na seleção do ComboBox
             int limite = cbTipoPessoa.getValue().equals("Cliente (CPF)") ? 11 : 14;
-
             if (txtDocumento.getText().length() > limite) {
                 txtDocumento.setText(oldValue);
             }
         });
 
-        // Atualiza o texto de ajuda e limpa o campo ao trocar a opção
         cbTipoPessoa.setOnAction(e -> {
             txtDocumento.clear();
-            if (cbTipoPessoa.getValue().equals("Cliente (CPF)")) {
-                txtDocumento.setPromptText("Máximo 11 números");
-            } else {
-                txtDocumento.setPromptText("Máximo 14 números");
-            }
+            txtDocumento.setPromptText(cbTipoPessoa.getValue().equals("Cliente (CPF)") ? "Máximo 11 números" : "Máximo 14 números");
         });
 
         TextField txtValor = new TextField();
@@ -73,11 +83,13 @@ public class App extends Application {
         TextField txtMotivo = new TextField();
         txtMotivo.setPromptText("Ex: PAGAMENTO DE DIÁRIAS");
 
-        TextField txtFormaPagamento = new TextField();
-        txtFormaPagamento.setText("Dinheiro / PIX");
+        ComboBox<String> cbFormaPagamento = new ComboBox<>();
+        cbFormaPagamento.getItems().addAll("Dinheiro", "PIX");
+        cbFormaPagamento.setValue("Dinheiro");
+        cbFormaPagamento.setMaxWidth(Double.MAX_VALUE);
 
         TextField txtLocalData = new TextField();
-        txtLocalData.setText("SÃO PAULO - SP, 05/08/2026");
+        txtLocalData.setText("SÃO PAULO - SP, 06/08/2026");
 
         TextField txtEmitente = new TextField();
         txtEmitente.setPromptText("Seu Nome ou Empresa");
@@ -85,69 +97,122 @@ public class App extends Application {
         TextField txtDocEmitente = new TextField();
         txtDocEmitente.setPromptText("Seu CPF ou CNPJ");
 
-        // Adicionando os elementos na tela em ordem
-        grid.add(new Label("Tipo de Pagador:"), 0, 0);
-        grid.add(cbTipoPessoa, 1, 0);
+        // Botão para selecionar a Logo
+        Button btnLogo = new Button("Selecionar Logo (Opcional)");
+        Label lblLogoStatus = new Label("Nenhuma logo selecionada");
+        lblLogoStatus.setStyle("-fx-text-fill: gray; -fx-font-size: 10px;");
 
-        grid.add(new Label("Nome / Razão Social:"), 0, 1);
-        grid.add(txtNome, 1, 1);
+        btnLogo.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Escolher Logo");
+            fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Imagens", "*.png", "*.jpg", "*.jpeg")
+            );
+            File selectedFile = fileChooser.showOpenDialog(primaryStage);
+            if (selectedFile != null) {
+                arquivoLogo = selectedFile;
+                lblLogoStatus.setText(selectedFile.getName());
+            }
+        });
 
-        grid.add(new Label("CPF / CNPJ:"), 0, 2);
-        grid.add(txtDocumento, 1, 2);
-
-        grid.add(new Label("Valor (R$):"), 0, 3);
-        grid.add(txtValor, 1, 3);
-
-        grid.add(new Label("Valor por Extenso:"), 0, 4);
-        grid.add(txtValorExtenso, 1, 4);
-
-        grid.add(new Label("Referente a:"), 0, 5);
-        grid.add(txtMotivo, 1, 5);
-
-        grid.add(new Label("Forma de Pagamento:"), 0, 6);
-        grid.add(txtFormaPagamento, 1, 6);
-
-        grid.add(new Label("Local e Data:"), 0, 7);
-        grid.add(txtLocalData, 1, 7);
-
-        grid.add(new Label("Seu Nome/Empresa:"), 0, 8);
-        grid.add(txtEmitente, 1, 8);
-
-        grid.add(new Label("Seu CPF/CNPJ:"), 0, 9);
-        grid.add(txtDocEmitente, 1, 9);
+        // Adicionando ao Grid
+        int row = 0;
+        grid.add(new Label("Tipo de Pagador:"), 0, row); grid.add(cbTipoPessoa, 1, row++);
+        grid.add(new Label("Nome / Razão:"), 0, row); grid.add(txtNome, 1, row++);
+        grid.add(new Label("CPF / CNPJ:"), 0, row); grid.add(txtDocumento, 1, row++);
+        grid.add(new Label("Valor (R$):"), 0, row); grid.add(txtValor, 1, row++);
+        grid.add(new Label("Valor Extenso:"), 0, row); grid.add(txtValorExtenso, 1, row++);
+        grid.add(new Label("Referente a:"), 0, row); grid.add(txtMotivo, 1, row++);
+        grid.add(new Label("Pagamento:"), 0, row); grid.add(cbFormaPagamento, 1, row++);
+        grid.add(new Label("Local e Data:"), 0, row); grid.add(txtLocalData, 1, row++);
+        grid.add(new Label("Seu Nome:"), 0, row); grid.add(txtEmitente, 1, row++);
+        grid.add(new Label("Seu CPF/CNPJ:"), 0, row); grid.add(txtDocEmitente, 1, row++);
+        grid.add(new Label("Logo do Recibo:"), 0, row); grid.add(btnLogo, 1, row++);
+        grid.add(new Label(""), 0, row); grid.add(lblLogoStatus, 1, row++);
 
         Button btnGerar = new Button("Gerar Recibo em PDF");
-        grid.add(btnGerar, 1, 10);
+        btnGerar.setMaxWidth(Double.MAX_VALUE);
+        btnGerar.setStyle("-fx-background-color: #2e7d32; -fx-text-fill: white; -fx-font-weight: bold;");
+        grid.add(btnGerar, 0, row, 2, 1);
 
-        // Ação do Botão
+        // Ação do Botão Gerar
         btnGerar.setOnAction(e -> {
             String nome = txtNome.getText();
             String documento = txtDocumento.getText();
             String valor = txtValor.getText();
             String valorExtenso = txtValorExtenso.getText();
             String motivo = txtMotivo.getText();
-            String formaPagamento = txtFormaPagamento.getText();
+            String formaPagamento = cbFormaPagamento.getValue();
             String localData = txtLocalData.getText();
             String emitente = txtEmitente.getText();
             String docEmitente = txtDocEmitente.getText();
 
             if (nome.isEmpty() || valor.isEmpty() || documento.isEmpty()) {
-                showAlert("Erro", "Preencha os campos obrigatórios (Nome, Documento e Valor)!", Alert.AlertType.ERROR);
+                showAlert("Erro", "Preencha Nome, Documento e Valor!", Alert.AlertType.ERROR);
                 return;
             }
 
-            gerarPdfProfissional(nome, documento, valor, valorExtenso, motivo, formaPagamento, localData, emitente, docEmitente);
+            gerarPdfProfissional(nome, documento, valor, valorExtenso, motivo, formaPagamento, localData, emitente, docEmitente, arquivoLogo);
         });
 
-        Scene scene = new Scene(grid, 520, 600);
+        Scene scene = new Scene(grid, 480, 560);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
+    private void verificarAtualizacaoNoGitHub() {
+        new Thread(() -> {
+            try {
+                String urlApi = "https://api.github.com/repos/tecnosh97/gerador-recibos-javafx/releases/latest";
+
+                HttpClient client = HttpClient.newHttpClient();
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(urlApi))
+                        .header("Accept", "application/vnd.github.v3+json")
+                        .GET()
+                        .build();
+
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() == 200) {
+                    String json = response.body();
+                    String tagVersion = extrairValorJson(json, "tag_name");
+
+                    if (tagVersion != null && !tagVersion.equals("v" + VERSAO_ATUAL)) {
+                        Platform.runLater(() -> {
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Nova atualização disponível!");
+                            alert.setHeaderText("Existe uma nova versão (" + tagVersion + ")!");
+                            alert.setContentText("Baixe a nova versão no GitHub para aproveitar melhorias.");
+                            alert.showAndWait();
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                // Silencioso se estiver offline
+            }
+        }).start();
+    }
+
+    private String extrairValorJson(String json, String chave) {
+        try {
+            String busca = "\"" + chave + "\":\"";
+            int inicio = json.indexOf(busca);
+            if (inicio != -1) {
+                inicio += busca.length();
+                int fim = json.indexOf("\"", inicio);
+                return json.substring(inicio, fim);
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
+
     private void gerarPdfProfissional(String nome, String documento, String valor, String valorExtenso, 
                                       String motivo, String formaPagamento, String localData, 
-                                      String emitente, String docEmitente) {
-        String fileName = "recibo.pdf";
+                                      String emitente, String docEmitente, File logoFile) {
+        
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+        String fileName = "recibo_" + timestamp + ".pdf";
 
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();
@@ -162,6 +227,11 @@ public class App extends Application {
                 cs.setLineWidth(1.5f);
                 cs.addRect(margin, startY, width, height);
                 cs.stroke();
+
+                if (logoFile != null && logoFile.exists()) {
+                    PDImageXObject pdImage = PDImageXObject.createFromFile(logoFile.getAbsolutePath(), document);
+                    cs.drawImage(pdImage, margin + 15, startY + height - 60, 50, 50);
+                }
 
                 float boxWidth = 155;
                 float boxHeight = 35;
@@ -187,7 +257,7 @@ public class App extends Application {
                 cs.beginText();
                 cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 11);
                 cs.newLineAtOffset(margin + 200, startY + height - 50);
-                cs.showText("Nº 001");
+                cs.showText("Nº " + timestamp.substring(11, 19).replace("-", ""));
                 cs.endText();
 
                 cs.setLineWidth(1f);
@@ -253,7 +323,7 @@ public class App extends Application {
             }
 
             document.save(fileName);
-            showAlert("Sucesso", "PDF gerado com sucesso na pasta do projeto!", Alert.AlertType.INFORMATION);
+            showAlert("Sucesso", "PDF gerado com o nome:\n" + fileName, Alert.AlertType.INFORMATION);
 
         } catch (IOException e) {
             showAlert("Erro", "Erro ao gerar PDF: " + e.getMessage(), Alert.AlertType.ERROR);

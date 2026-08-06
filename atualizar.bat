@@ -16,3 +16,4 @@ git commit -m "$mensagem"
 git push origin main
 
 echo "--- PROJETO ATUALIZADO COM SUCESSO NO GITHUB! ---"
+

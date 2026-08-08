@@ -89,7 +89,7 @@ public class App extends Application {
         cbFormaPagamento.setMaxWidth(Double.MAX_VALUE);
 
         TextField txtLocalData = new TextField();
-        txtLocalData.setText("SÃO PAULO - SP, 06/08/2026");
+        txtLocalData.setText("SÃO PAULO - SP, 08/08/2026");
 
         TextField txtEmitente = new TextField();
         txtEmitente.setPromptText("Seu Nome ou Empresa");
@@ -137,6 +137,7 @@ public class App extends Application {
 
         // Ação do Botão Gerar
         btnGerar.setOnAction(e -> {
+            String tipoPessoa = cbTipoPessoa.getValue();
             String nome = txtNome.getText();
             String documento = txtDocumento.getText();
             String valor = txtValor.getText();
@@ -152,12 +153,55 @@ public class App extends Application {
                 return;
             }
 
+            // Validação matemática de CPF implementada aqui
+            if (tipoPessoa.equals("Cliente (CPF)")) {
+                if (!validarCPF(documento)) {
+                    showAlert("CPF Inválido", "O número de CPF informado não é matematicamente válido. Verifique os dígitos.", Alert.AlertType.ERROR);
+                    return;
+                }
+            }
+
             gerarPdfProfissional(nome, documento, valor, valorExtenso, motivo, formaPagamento, localData, emitente, docEmitente, arquivoLogo);
         });
 
         Scene scene = new Scene(grid, 480, 560);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    // Algoritmo matemático para validar se o CPF é real
+    private boolean validarCPF(String cpf) {
+        cpf = cpf.replaceAll("\\D", "");
+
+        if (cpf.length() != 11 || cpf.matches("(\\d)\\1{10}")) {
+            return false;
+        }
+
+        try {
+            int soma = 0;
+            int peso = 10;
+            for (int i = 0; i < 9; i++) {
+                soma += (cpf.charAt(i) - '0') * peso--;
+            }
+            int resto = 11 - (soma % 11);
+            int digito1 = (resto == 10 || resto == 11) ? 0 : resto;
+
+            if (digito1 != (cpf.charAt(9) - '0')) {
+                return false;
+            }
+
+            soma = 0;
+            peso = 11;
+            for (int i = 0; i < 10; i++) {
+                soma += (cpf.charAt(i) - '0') * peso--;
+            }
+            resto = 11 - (soma % 11);
+            int digito2 = (resto == 10 || resto == 11) ? 0 : resto;
+
+            return digito2 == (cpf.charAt(10) - '0');
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private void verificarAtualizacaoNoGitHub() {

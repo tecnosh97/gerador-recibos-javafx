@@ -34,7 +34,6 @@ final class LicenseManager {
 
         while (true) {
             TextInputDialog dialog = new TextInputDialog();
-            dialog.initOwner(owner);
             dialog.setTitle("Ativação do Gerador de Recibos");
             dialog.setHeaderText("Informe a chave recebida após a compra");
             dialog.setContentText("Chave de ativação:");
@@ -101,7 +100,6 @@ final class LicenseManager {
 
     private static void showError(Window owner, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.initOwner(owner);
         alert.setTitle("Ativação inválida");
         alert.setHeaderText(null);
         alert.setContentText(message);

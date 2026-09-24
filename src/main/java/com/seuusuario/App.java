@@ -23,6 +23,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -262,8 +264,11 @@ public class App extends Application {
         
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
         String fileName = "recibo_" + timestamp + ".pdf";
+        Path outputDirectory = Path.of(System.getProperty("user.home"), "Documents", "GeradorRecibos");
+        Path outputFile = outputDirectory.resolve(fileName);
 
         try (PDDocument document = new PDDocument()) {
+            Files.createDirectories(outputDirectory);
             PDPage page = new PDPage();
             document.addPage(page);
 
@@ -371,10 +376,10 @@ public class App extends Application {
                 cs.endText();
             }
 
-            document.save(fileName);
-            showAlert("Sucesso", "PDF gerado com o nome:\n" + fileName, Alert.AlertType.INFORMATION);
+            document.save(outputFile.toFile());
+            showAlert("Sucesso", "PDF gerado em:\n" + outputFile.toAbsolutePath(), Alert.AlertType.INFORMATION);
 
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             showAlert("Erro", "Erro ao gerar PDF: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }

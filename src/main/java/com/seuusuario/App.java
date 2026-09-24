@@ -36,6 +36,11 @@ public class App extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Gerador de Recibos v" + VERSAO_ATUAL);
 
+        if (!LicenseManager.ensureActivated(primaryStage)) {
+            Platform.exit();
+            return;
+        }
+
         // Dispara a verificação de atualização no GitHub em segundo plano
         verificarAtualizacaoNoGitHub();
 

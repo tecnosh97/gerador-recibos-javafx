@@ -4,7 +4,7 @@ cd /d "%~dp0"
 
 echo --- INICIANDO ATUALIZACAO DO PROJETO ---
 
-git add .gitignore pom.xml atualizar.bat atualizar.sh gerar-exe.bat src
+git add .gitignore pom.xml atualizar.bat atualizar.sh gerar-exe.bat gerar-licenca.bat src
 if errorlevel 1 exit /b 1
 
 git diff --cached --quiet

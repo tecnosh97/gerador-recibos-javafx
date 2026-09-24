@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Gerador de Recibos: crie recibos profissionais em PDF no Windows, com CPF/CNPJ, logo e assinatura.">
+  <meta name="theme-color" content="#f4efe6">
+  <title>Gerador de Recibos | Recibos profissionais em PDF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#inicio" aria-label="Gerador de Recibos, início">
+      <span class="brand-mark" aria-hidden="true">GR</span>
+      <span>Gerador de<br><strong>Recibos</strong></span>
+    </a>
+    <nav aria-label="Navegação principal">
+      <a href="#recursos">Recursos</a>
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#duvidas">Dúvidas</a>
+    </nav>
+    <a class="button button-small button-outline" href="https://github.com/tecnosh97/gerador-recibos-javafx/releases/latest">Baixar app <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main id="inicio">
+    <section class="hero page-section">
+      <div class="hero-copy reveal">
+        <p class="eyebrow"><span></span> Feito para quem precisa emitir agora</p>
+        <h1>O recibo certo,<br><em>sem perder tempo.</em></h1>
+        <p class="hero-text">Preencha os dados, escolha sua forma de pagamento e gere um PDF pronto para enviar ou imprimir. Simples para a rotina, profissional no resultado.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="https://github.com/tecnosh97/gerador-recibos-javafx/releases/latest">Baixar para Windows <span aria-hidden="true">↗</span></a>
+          <a class="text-link" href="#como-funciona">Ver como funciona <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="trust-line"><span class="status-dot"></span> Versão 1.0.0 disponível <span class="divider">·</span> Aplicativo desktop <span class="divider">·</span> PDF</div>
+      </div>
+
+      <div class="receipt-stage reveal delay-1" aria-label="Prévia de um recibo gerado pelo aplicativo">
+        <div class="stage-note note-top">Seu documento, do seu jeito <span>↘</span></div>
+        <div class="receipt-paper">
+          <div class="paper-top">
+            <div class="logo-placeholder">SUA<br>LOGO</div>
+            <div class="paper-title">RECIBO <small>Nº 084726</small></div>
+            <div class="paper-value"><small>VALOR</small>R$ 850,00</div>
+          </div>
+          <div class="paper-rule"></div>
+          <p>Recebi(emos) de <b>MARIA OLIVEIRA</b>, inscrito(a) no CPF/CNPJ sob o nº <b>123.456.789-00</b>, a importância de R$ 850,00 (oitocentos e cinquenta reais), referente a <b>SERVIÇO PRESTADO</b>.</p>
+          <p>Para maior clareza, firmo(amos) o presente documento para que produza os seus efeitos legais, dando plena, rasa e geral quitação pelo valor acima recebido.</p>
+          <div class="paper-meta"><span><b>Forma de Pagamento</b><br>PIX</span><span>SÃO PAULO - SP<br>08/08/2026</span></div>
+          <div class="signature"><span></span><b>SEU NOME OU EMPRESA</b><small>CPF/CNPJ: 00.000.000/0001-00</small></div>
+        </div>
+        <div class="stage-note note-bottom"><span>↖</span> Pronto para compartilhar</div>
+      </div>
+    </section>
+
+    <section class="proof-strip" aria-label="Resumo do aplicativo">
+      <div><strong>01</strong><span>Preencha<br>em minutos</span></div>
+      <div><strong>PDF</strong><span>Documento<br>profissional</span></div>
+      <div><strong>100%</strong><span>Feito para<br>Windows</span></div>
+      <div><strong>PIX</strong><span>Pagamento<br>à vista</span></div>
+    </section>
+
+    <section class="features page-section" id="recursos">
+      <div class="section-heading reveal"><p class="eyebrow"><span></span> Uma ferramenta pequena, uma diferença grande</p><h2>Seu trabalho já é sério.<br>O recibo também deve ser.</h2></div>
+      <div class="feature-grid">
+        <article class="feature-card reveal"><div class="feature-icon icon-fields">▤</div><h3>Dados completos</h3><p>Nome, CPF ou CNPJ, valor, valor por extenso, motivo, data e dados de quem emite.</p><span class="card-number">01 / 04</span></article>
+        <article class="feature-card feature-card-dark reveal delay-1"><div class="feature-icon icon-check">✓</div><h3>CPF validado</h3><p>O app confere matematicamente o CPF antes de criar o documento, evitando erros básicos.</p><span class="card-number">02 / 04</span></article>
+        <article class="feature-card reveal delay-2"><div class="feature-icon icon-logo">◩</div><h3>Sua identidade</h3><p>Adicione uma logo em PNG ou JPG e deixe o recibo com a cara do seu negócio.</p><span class="card-number">03 / 04</span></article>
+        <article class="feature-card reveal delay-3"><div class="feature-icon icon-file">PDF</div><h3>PDF na hora</h3><p>O arquivo é salvo no computador com nome único, pronto para arquivar, imprimir ou enviar.</p><span class="card-number">04 / 04</span></article>
+      </div>
+    </section>
+
+    <section class="workflow page-section" id="como-funciona">
+      <div class="workflow-intro reveal"><p class="eyebrow"><span></span> Sem cadastro. Sem complicação.</p><h2>Do formulário<br>ao PDF.</h2><p>Uma rotina clara para autônomos, prestadores de serviço e pequenos negócios que precisam emitir recibos sem abrir um sistema inteiro.</p><a class="button button-primary" href="https://github.com/tecnosh97/gerador-recibos-javafx/releases/latest">Quero começar <span aria-hidden="true">↗</span></a></div>
+      <ol class="steps">
+        <li class="step reveal"><span class="step-index">01</span><div><h3>Identifique o pagador</h3><p>Escolha Cliente (CPF) ou Empresa (CNPJ) e informe os dados.</p></div></li>
+        <li class="step reveal delay-1"><span class="step-index">02</span><div><h3>Descreva o recebimento</h3><p>Valor, valor por extenso, motivo e forma de pagamento: dinheiro ou PIX.</p></div></li>
+        <li class="step reveal delay-2"><span class="step-index">03</span><div><h3>Personalize e gere</h3><p>Inclua sua logo, confira os dados e clique em “Gerar Recibo em PDF”.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="commercial page-section">
+      <div class="commercial-inner reveal"><div><p class="eyebrow eyebrow-light"><span></span> Disponível para você</p><h2>Menos papelada.<br>Mais confiança.</h2><p>Baixe a versão atual e conheça o Gerador de Recibos. Para uso comercial, personalização ou parceria, fale diretamente com o responsável pelo projeto.</p></div><div class="commercial-action"><a class="button button-light" href="https://github.com/tecnosh97/gerador-recibos-javafx/releases/latest">Baixar versão atual <span aria-hidden="true">↗</span></a><a class="light-link" href="https://github.com/tecnosh97">Conversar sobre aquisição <span aria-hidden="true">↗</span></a></div></div>
+    </section>
+
+    <section class="faq page-section" id="duvidas">
+      <div class="section-heading reveal"><p class="eyebrow"><span></span> Dúvidas rápidas</p><h2>O que você precisa saber.</h2></div>
+      <div class="faq-list">
+        <details class="reveal"><summary>Em qual sistema o app funciona? <span>+</span></summary><p>A versão distribuída foi empacotada para Windows como aplicativo portátil. Ela inclui o runtime necessário e não exige instalação de Java separada.</p></details>
+        <details class="reveal delay-1"><summary>Preciso de internet para gerar o recibo? <span>+</span></summary><p>Não. A geração do PDF acontece localmente. O aplicativo apenas consulta o GitHub em segundo plano para avisar quando há uma nova versão.</p></details>
+        <details class="reveal delay-2"><summary>Posso colocar a logo da minha empresa? <span>+</span></summary><p>Sim. O campo de logo aceita imagens PNG, JPG e JPEG, que aparecem no cabeçalho do recibo.</p></details>
+        <details class="reveal delay-3"><summary>Como recebo atualizações? <span>+</span></summary><p>O app verifica a release mais recente no GitHub e avisa quando uma atualização estiver disponível.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="footer-brand"><span class="brand-mark">GR</span><span>Gerador de Recibos</span></div><p>Recibos profissionais, sem perder tempo.</p><a href="https://github.com/tecnosh97/gerador-recibos-javafx">Ver projeto no GitHub ↗</a><small>© 2026 Gerador de Recibos</small></footer>
+  <script src="script.js"></script>
+</body>
+</html>

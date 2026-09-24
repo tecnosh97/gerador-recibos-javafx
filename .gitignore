@@ -1,0 +1,29 @@
+# Build output and packaged applications
+target/
+dist/
+dist-debug/
+*.jar
+*.war
+*.ear
+*.exe
+*.msi
+*.deb
+*.zip
+
+# IDE and local tooling
+.idea/
+.vscode/
+*.iml
+
+# Local logs and generated files
+*.log
+hs_err_pid*
+
+# Local secrets and environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks

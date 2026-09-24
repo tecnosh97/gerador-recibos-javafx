@@ -1,19 +1,27 @@
-#!/bin/bash
+@echo off
+setlocal
+cd /d "%~dp0"
 
-echo "--- INICIANDO ATUALIZAÇÃO DO PROJETO ---"
+echo --- INICIANDO ATUALIZACAO DO PROJETO ---
 
-# Adiciona todas as alterações feitas no código
-git add .
+git add .gitignore pom.xml atualizar.bat atualizar.sh gerar-exe.bat src
+if errorlevel 1 exit /b 1
 
-# Pergunta qual foi a alteração para colocar na mensagem do commit
-echo "Digite a mensagem da atualização (o que você mudou):"
-read mensagem
+git diff --cached --quiet
+if not errorlevel 1 (
+	echo Nenhuma alteracao para enviar.
+	exit /b 0
+)
 
-# Faz o commit com a mensagem digitada
-git commit -m "$mensagem"
+set /p "mensagem=Digite a mensagem da atualizacao: "
+if "%mensagem%"=="" set "mensagem=Atualizacao do projeto"
 
-# Envia para o GitHub na branch main
+git commit -m "%mensagem%"
+if errorlevel 1 exit /b 1
+
 git push origin main
+if errorlevel 1 exit /b 1
 
-echo "--- PROJETO ATUALIZADO COM SUCESSO NO GITHUB! ---"
+echo --- PROJETO ATUALIZADO COM SUCESSO NO GITHUB! ---
+endlocal
 
